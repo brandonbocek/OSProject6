@@ -43,9 +43,12 @@ typedef struct msgbuf {
 	char mText[80];
 } msgbuf;
 
-typedef struct resourceAlloc {
-	int quantity[RSRC_ARR_SIZE];
-} resourceAlloc;
+typedef struct frame {
+	//int quantity[RSRC_ARR_SIZE];
+	int dirtyBit;
+	int logicalBit;
+	int referenceBit;
+} frame;
 
 typedef struct PCB {
 	pid_t processID;
@@ -53,8 +56,7 @@ typedef struct PCB {
 	int release;
 	int deadlocked;
 	int setToDie;
-	resourceAlloc allocation;
-	//long long createTime;
+	frame pageGiven;
 } PCB;
 
 typedef struct resource {

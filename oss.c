@@ -1,8 +1,8 @@
 /*
 Brandon Bocek
-11/14/2017
+12/1/2017
 CS 4760
-Project 5
+Project 6
 */
 
 #include "project6.h"
@@ -115,13 +115,16 @@ int main (int argc, char *argv[]) {
 	
 	int indexToBeShared, qtyOfResourcesToBeShared;
     /* Each resource in the array has between 1 and 10 resources available */
+	/*
     for(x = 0; x < RSRC_ARR_SIZE; x++) {
         resourceArray[x].quantity = 1 + rand() % 10;
         resourceArray[x].quantAvail = resourceArray[x].quantity;
     }
-
+	*/
     /* Between 3 and 5 of the resources are shareable
 	so on average 4 of 20 resource or 20% are shareable	*/
+	
+	/*
     qtyOfResourcesToBeShared = 3 + rand() % 3;
 
     for(x = 0; x < qtyOfResourcesToBeShared; x++) {
@@ -129,6 +132,7 @@ int main (int argc, char *argv[]) {
         resourceArray[indexToBeShared].quantity = 100;
         resourceArray[indexToBeShared].quantAvail = 100;
     }
+	*/
 
     /*  File pointer opens log.out by default */
     file = fopen(filename, "w");
@@ -303,6 +307,7 @@ int getMessage(void) {
     }
 }
 
+//THIS MAY NEED SOME SERIOUS WORK
 void processMessage(int processNum) {
     if(processNum == -1) {
         return;
@@ -371,52 +376,6 @@ void processResourceRequests(void) {
     }
 }
 
-/* Every 20 granted requests print each number of resources allocated to each process */
-void printResourcesAllocatedToEachProcess(){
-	int i;
-	printf("     R0  R1  R2  R3  R4  R5  R6  R7  R8  R9  R10  R11  R12  R13  R14  R15  R16  R17  R18  R19\n");
-	fprintf(file, "     R0  R1  R2  R3  R4  R5  R6  R7  R8  R9  R10  R11  R12  R13  R14  R15  R16  R17  R18  R19\n");
-	
-	/*  1st half split for space alignment with 2 digit numbers*/
-	for(i = 0; i < 10; i++){
-		printf("P%d:  %d   %d   %d   %d   %d   %d   %d   %d   %d   %d   %d    %d    %d    %d    %d    %d    %d    %d    %d    %d\n", i, pcbGroup[i].allocation.quantity[0],
-			pcbGroup[i].allocation.quantity[1], pcbGroup[i].allocation.quantity[2], pcbGroup[i].allocation.quantity[3],
-			pcbGroup[i].allocation.quantity[4], pcbGroup[i].allocation.quantity[5], pcbGroup[i].allocation.quantity[6],
-			pcbGroup[i].allocation.quantity[7], pcbGroup[i].allocation.quantity[8], pcbGroup[i].allocation.quantity[9],
-			pcbGroup[i].allocation.quantity[10], pcbGroup[i].allocation.quantity[11], pcbGroup[i].allocation.quantity[12],
-			pcbGroup[i].allocation.quantity[13], pcbGroup[i].allocation.quantity[14], pcbGroup[i].allocation.quantity[15],
-			pcbGroup[i].allocation.quantity[16], pcbGroup[i].allocation.quantity[17], pcbGroup[i].allocation.quantity[18],
-			pcbGroup[i].allocation.quantity[19]);
-		fprintf(file, "P%d:  %d   %d   %d   %d   %d   %d   %d   %d   %d   %d   %d    %d    %d    %d    %d    %d    %d    %d    %d    %d\n", i, pcbGroup[i].allocation.quantity[0],
-			pcbGroup[i].allocation.quantity[1], pcbGroup[i].allocation.quantity[2], pcbGroup[i].allocation.quantity[3],
-			pcbGroup[i].allocation.quantity[4], pcbGroup[i].allocation.quantity[5], pcbGroup[i].allocation.quantity[6],
-			pcbGroup[i].allocation.quantity[7], pcbGroup[i].allocation.quantity[8], pcbGroup[i].allocation.quantity[9],
-			pcbGroup[i].allocation.quantity[10], pcbGroup[i].allocation.quantity[11], pcbGroup[i].allocation.quantity[12],
-			pcbGroup[i].allocation.quantity[13], pcbGroup[i].allocation.quantity[14], pcbGroup[i].allocation.quantity[15],
-			pcbGroup[i].allocation.quantity[16], pcbGroup[i].allocation.quantity[17], pcbGroup[i].allocation.quantity[18],
-			pcbGroup[i].allocation.quantity[19]);
-	}
-	
-	/* 2nd half display */
-	for(i = 10; i < PCB_ARRAY_SIZE; i++){
-		printf("P%d: %d   %d   %d   %d   %d   %d   %d   %d   %d   %d   %d    %d    %d    %d    %d    %d    %d    %d    %d    %d\n", i, pcbGroup[i].allocation.quantity[0],
-			pcbGroup[i].allocation.quantity[1], pcbGroup[i].allocation.quantity[2], pcbGroup[i].allocation.quantity[3],
-			pcbGroup[i].allocation.quantity[4], pcbGroup[i].allocation.quantity[5], pcbGroup[i].allocation.quantity[6],
-			pcbGroup[i].allocation.quantity[7], pcbGroup[i].allocation.quantity[8], pcbGroup[i].allocation.quantity[9],
-			pcbGroup[i].allocation.quantity[10], pcbGroup[i].allocation.quantity[11], pcbGroup[i].allocation.quantity[12],
-			pcbGroup[i].allocation.quantity[13], pcbGroup[i].allocation.quantity[14], pcbGroup[i].allocation.quantity[15],
-			pcbGroup[i].allocation.quantity[16], pcbGroup[i].allocation.quantity[17], pcbGroup[i].allocation.quantity[18],
-			pcbGroup[i].allocation.quantity[19]);
-		fprintf(file, "P%d: %d   %d   %d   %d   %d   %d   %d   %d   %d   %d   %d    %d    %d    %d    %d    %d    %d    %d    %d    %d\n", i, pcbGroup[i].allocation.quantity[0],
-			pcbGroup[i].allocation.quantity[1], pcbGroup[i].allocation.quantity[2], pcbGroup[i].allocation.quantity[3],
-			pcbGroup[i].allocation.quantity[4], pcbGroup[i].allocation.quantity[5], pcbGroup[i].allocation.quantity[6],
-			pcbGroup[i].allocation.quantity[7], pcbGroup[i].allocation.quantity[8], pcbGroup[i].allocation.quantity[9],
-			pcbGroup[i].allocation.quantity[10], pcbGroup[i].allocation.quantity[11], pcbGroup[i].allocation.quantity[12],
-			pcbGroup[i].allocation.quantity[13], pcbGroup[i].allocation.quantity[14], pcbGroup[i].allocation.quantity[15],
-			pcbGroup[i].allocation.quantity[16], pcbGroup[i].allocation.quantity[17], pcbGroup[i].allocation.quantity[18],
-			pcbGroup[i].allocation.quantity[19]);
-	}
-}
 
 /* A resource is given to a process */
 void requestResource(int resourceType, int i) {
@@ -424,13 +383,6 @@ void requestResource(int resourceType, int i) {
     if((quant = resourceArray[resourceType].quantAvail) > 0) {
 		
 		totalGrantedRequests++;
-		
-		if(((totalGrantedRequests % 20) == 0) && (totalGrantedRequests > 0)) {
-			if(verboseOn && (fileLinesPrinted < LINE_LIMIT - 20)) {
-				printResourcesAllocatedToEachProcess();
-				fileLinesPrinted = fileLinesPrinted + 21;
-			}
-		}
 		
         if(verboseOn) {
             printf("There are %d out of %d for resource R:%d available\n", quant, resourceArray[resourceType].quantity, resourceType);
@@ -533,133 +485,6 @@ void performProcessCleanup(int i) {
 	pcbGroup[i].processID = 0;
 	pcbGroup[i].request = -1;
 	pcbGroup[i].release = -1;
-}
-
-/*returns the number of deadlocked processes */
-int deadlockIsFound(void) {
-	
-    numberOfDeadlockDetectionRuns++;
-    int resourceTempArr[RSRC_ARR_SIZE];
-    int safeProcessArr[PCB_ARRAY_SIZE];
-    int p;
-    for(p = 0; p < RSRC_ARR_SIZE; p++) {
-        resourceTempArr[p] = resourceArray[p].quantAvail;
-    }
-    for(p = 0; p < PCB_ARRAY_SIZE; p++) {
-        safeProcessArr[p] = 0;
-    }
-    for(p = 0; p < PCB_ARRAY_SIZE; p++) {
-		
-		//If this pcb doesn't have a process, it won't be deadlocked
-        if(pcbGroup[p].processID == 0) {
-            safeProcessArr[p] = 1;
-        }
-		
-		// if the process has spawned and it isn't making a request where the resources are unavailable
-        if(!safeProcessArr[p] && processIsRuledSafe(resourceTempArr, p)) {
-            safeProcessArr[p] = 1;
-            int i;
-			// For each resource add what is allocated to what is available to get the original amount of resources available
-            for(i = 0; i < RSRC_ARR_SIZE; i++) {
-               resourceTempArr[i] = resourceTempArr[i] + pcbGroup[p].allocation.quantity[i];
-            }
-			
-			// Start this for-loop over again
-			// In order to get an accurate max resources available
-            p = -1;
-        }
-    }
-
-	// check to see how many processes are deadlocked
-    int deadlockCount = 0;
-    for(p = 0; p < PCB_ARRAY_SIZE; p++) {
-        if(!safeProcessArr[p]) {
-            pcbGroup[p].deadlocked = 1;
-			// Even when verbose is off Tell the user which processes are deadlocked
-			printf("Process %d was found to be deadlocked at time %llu.%03llu\n", p, mainStruct->virtualClock / NANOPERSECOND, mainStruct->virtualClock % NANOPERSECOND);
-            fprintf(file, "Process %d was found to be deadlocked at time %llu.%03llu\n", p, mainStruct->virtualClock / NANOPERSECOND, mainStruct->virtualClock % NANOPERSECOND);
-            deadlockCount++;
-        }
-        else {
-            pcbGroup[p].deadlocked = 0;
-        }
-    }
-	
-	/*  Print which processes are deadlocked to file and console */
-	if(verboseOn && (fileLinesPrinted < LINE_LIMIT)) {
-		outputDeadlockStatus(safeProcessArr, deadlockCount);
-		fileLinesPrinted++;
-	}
-	return deadlockCount;
-}
-
-/* Returns false only if the process is making a request but resources are not available for that request */
-int processIsRuledSafe(int *resourceTempArr, int p) {
-	// If the process is not requesting any resource
-    if(pcbGroup[p].request == -1)
-        return 1;
-	
-	//If there are resources available for this process's request
-    if(resourceTempArr[pcbGroup[p].request] > 0)
-        return 1;
-
-	// Otherwise the process is deadlocked
-	return 0;
-	
-}
-
-/* Output which processes are deadlocked if any */
-void outputDeadlockStatus(int *safeProcessArr, int numDeadlocked){
-	int i;
-	if(numDeadlocked > 0) {
-        printf("Processes: ");
-        fprintf(file, "Processes: ");
-		
-        for(i = 0; i < PCB_ARRAY_SIZE; i++) {
-            if(!safeProcessArr[i]) {
-                printf("P:%d ", i);
-				fprintf(file, "P:%d ", i);
-            }
-        }
-		printf("are deadlocked\n");
-		fprintf(file, "are deadlocked\n");
-    } else {
-		
-		printf("The system is not found to have any deadlock\n");
-		fprintf(file, "The system is not found to have any deadlock\n");
-		
-	}
-}
-
-/* Find the resource with the most amount of resources allocated to it and kill*/
-void killAfterDeadlock(void) {
-    int process;
-    int max = 0;
-    int i;
-    int j;
-    for(i = 0; i < PCB_ARRAY_SIZE; i++) {
-        if(pcbGroup[i].deadlocked) {
-            int total = 0;
-            for(j = 0; j < RSRC_ARR_SIZE; j++) {
-                total += pcbGroup[i].allocation.quantity[j];
-            }
-            if(total > max) {
-                max = total;
-                process = i;
-            }
-        }
-    }
-
-    pcbGroup[process].deadlocked = 0;
-    pcbGroup[process].setToDie = 1;
-    performProcessCleanup(process);
-	
-	/* Even when verbose is off tell the user how deadlock was resolved */
-	printf("Process %d was killed because it used the most total resources\n", process);
-	if(fileLinesPrinted < LINE_LIMIT) {
-		fprintf(file, "Process %d was killed because it used the most total resources\n", process);
-		fileLinesPrinted++;
-	}
 }
 
 /* When an interrupt is called everything is terminated and everything in shared mem is cleared */
