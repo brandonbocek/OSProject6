@@ -5,14 +5,14 @@ CS 4760
 Project 6
 */
 
-#include "project5.6"
+#include "project6.h"
 
 long long lastTimeChecked = 0;
 
 int main (int argc, char *argv[]) {
 
 	shmid = 0;
-	resourceShmid = 0;
+	frameShmid = 0;
 	pcbShmid = 0;
 	myPid = getpid();
 
@@ -28,7 +28,7 @@ int main (int argc, char *argv[]) {
     pcbShmid = atoi(argv[3]);
 
     //resource segment ID
-    resourceShmid = atoi(argv[4]);
+    frameShmid = atoi(argv[4]);
 	
 	//message queue id
 	masterQueueId = atoi(argv[5]);
@@ -47,8 +47,8 @@ int main (int argc, char *argv[]) {
 		exit(EXIT_SUCCESS);
 	}
 
-	if((resourceArray = (resource *)shmat(resourceShmid, NULL, 0)) == (void *) -1) {
-		fprintf(stderr, "Error: failed to attach memory segment %i for the resource control block \n", resourceShmid);
+	if((frameArray = (frame *)shmat(frameShmid, NULL, 0)) == (void *) -1) {
+		fprintf(stderr, "Error: failed to attach frame %i for the block \n", frameShmid);
 		exit(EXIT_SUCCESS);
 	}
 
@@ -90,10 +90,10 @@ int main (int argc, char *argv[]) {
 				// User will release the lowest index reasource that is allocated to it
 				} else{
 					for(i = 0; i < RSRC_ARR_SIZE; i++) {
-						if(pcbGroup[processNumber].allocation.quantity[i] > 0) {
-							pcbGroup[processNumber].release = i;
-							break;
-						}
+						//if(pcbGroup[processNumber].allocation.quantity[i] > 0) {
+							//pcbGroup[processNumber].release = i;
+							//break;
+						//}
 					}
 				}
 				
@@ -119,8 +119,8 @@ int main (int argc, char *argv[]) {
 		perror("Error: Child failed to detach from shared memory array");
 	}
 
-	if(shmdt(resourceArray) == -1) {
-		perror("Error: Child failed to detach from resource array");
+	if(shmdt(frameArray) == -1) {
+		perror("Error: Child failed to detach from frame array");
 	}
 
 	kill(myPid, SIGTERM);
@@ -156,12 +156,12 @@ void signalHandler(int sig) {
 
 /* Send a message to the master to tell it what the child wants done to itself */
 void sendMessage(int qid, int msgtype) {
-  struct msgbuf msg;
+	struct msgbuf msg;
 
-  msg.mType = msgtype;
-  sprintf(msg.mText, "%d", processNumber);
+	msg.mType = msgtype;
+	sprintf(msg.mText, "%d", processNumber);
 
-  if(msgsnd(qid, (void *) &msg, sizeof(msg.mText), IPC_NOWAIT) == -1) {
-    perror("Error: Child msgsnd has failed");
-  }
+	if(msgsnd(qid, (void *) &msg, sizeof(msg.mText), IPC_NOWAIT) == -1) {
+		perror("Error: Child msgsnd has failed");
+	}
 }

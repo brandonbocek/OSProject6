@@ -45,6 +45,7 @@ typedef struct msgbuf {
 
 typedef struct frame {
 	//int quantity[RSRC_ARR_SIZE];
+	//int address[256]
 	int dirtyBit;
 	int logicalBit;
 	int referenceBit;
@@ -56,7 +57,7 @@ typedef struct PCB {
 	int release;
 	int deadlocked;
 	int setToDie;
-	frame pageGiven;
+	int pageAddresses[32];
 } PCB;
 
 typedef struct resource {
@@ -73,7 +74,6 @@ void processMessage(int);
 void requestResource(int, int);
 void releaseResource(int, int);
 void performProcessCleanup(int);
-void printResourcesAllocatedToEachProcess();
 int deadlockIsFound();
 int processIsRuledSafe(int*, int);
 void outputDeadlockStatus(int *safeProcessArr, int numDeadlocked);
@@ -83,7 +83,7 @@ void interruptHandler(int);
 void finalDeletions();
 int detachAndRemoveTimer(int, clockStruct*);
 int detachAndRemoveArray(int, PCB*);
-int detachAndRemoveResource(int, resource*);
+int detachAndRemoveFrames(int, frame*);
 
 // User functions
 int processWillEnd();
@@ -94,7 +94,7 @@ void killLeftoverProcesses(int);
  
 // Both OSS and User arrays
 PCB *pcbGroup;
-resource *resourceArray;
+frame *frameArray;
 
 // Clock variables
 struct clockStruct *mainStruct;
@@ -110,7 +110,7 @@ int verboseOn = 0;
 int status;
 int shmid;
 int pcbShmid;
-int resourceShmid;
+int frameShmid;
 int clockShmid;
 int slaveQueueId;
 int masterQueueId;
@@ -133,7 +133,7 @@ int timeoutValue;
 int bound;
 
 key_t timerKey = 5745774;
-key_t resourceArrKey = 9475843;
+key_t frameArrKey = 9475843;
 key_t pcbArrKey = 2143324;
 key_t masterQKey = 5489589;
 

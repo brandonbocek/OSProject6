@@ -61,12 +61,12 @@ int main (int argc, char *argv[]) {
     }
 	
 	/* Resource Array Shared Mem */
-    if((resourceShmid = shmget(resourceArrKey, (sizeof(*resourceArray) * 20), IPC_CREAT | 0666)) == -1) {
-        perror("Error: shmget for attaching the resource array to shared memory has failed.");
+    if((frameShmid = shmget(frameArrKey, (sizeof(*frameArray) * 256), IPC_CREAT | 0666)) == -1) {
+        perror("Error: shmget for attaching the frames array to shared memory has failed.");
         exit(EXIT_FAILURE);
     }
-    if((resourceArray = (struct resource *)shmat(resourceShmid, NULL, 0)) == (void *) -1) {
-        fprintf(stderr, "Error: Attaching memory segment %i has failed.\n", resourceShmid);
+    if((frameArray = (struct frame *)shmat(frameShmid, NULL, 0)) == (void *) -1) {
+        fprintf(stderr, "Error: Attaching memory segment %i has failed.\n", frameShmid);
         exit(EXIT_FAILURE);
     }
 
@@ -95,11 +95,15 @@ int main (int argc, char *argv[]) {
     /* Alarm to terminate is set to 20 seconds by default or the command line arg */
     alarm(maxTimeToRun);
 
+	/* Setting the random number generator */
+	srand(time(NULL) + getpid());
+	
 	/* The 20 PCBs in the array have their fields initialized to starting defaults*/
     int x, y;
     for (x = 0; x < PCB_ARRAY_SIZE; x++) {
-		for(y = 0; y < RSRC_ARR_SIZE; y++) {
-            pcbGroup[x].allocation.quantity[y] = 0;
+		for(y = 0; y < 32; y++) {
+           // pcbGroup[x].allocation.quantity[y] = 0;
+		   pcbGroup[x].pageAddresses[y] = rand() % 256;
         }
         pcbGroup[x].processID = 0;
         pcbGroup[x].deadlocked = 0;
@@ -108,8 +112,11 @@ int main (int argc, char *argv[]) {
 		pcbGroup[x].setToDie = 0;
     }
 	
-	/* Setting the random number generator */
-	srand(time(NULL) + getpid());
+	//initialize the Main memory frames
+	for(x=0; x< 256; x++) {
+		frameArray[x].dirtyBit = 0;
+	}
+	
 	
 	/* The 20 resources are initialized */
 	
@@ -165,11 +172,13 @@ int main (int argc, char *argv[]) {
             lastDeadlockCheck = mainStruct->virtualClock;
 			
 			/* If there is deadlock kill the process using the most resources until deadlock ends */
-            if(deadlockIsFound()) {
+            /*
+			if(deadlockIsFound()) {
                 do {
                     killAfterDeadlock();
                 } while(deadlockIsFound());
             }
+			*/
         }
 
         mainStruct->virtualClock += 1 + rand() % CLOCK_INCREMENT_MAX;
@@ -266,8 +275,8 @@ void forkAndExecuteNewChild(void) {
             //The PCB's segment id
 			sprintf(arg3, "%i", pcbShmid);
 
-            //The Resource segment's id
-			sprintf(arg4, "%i", resourceShmid);
+            //The frame segment's id
+			sprintf(arg4, "%i", frameShmid);
 
             //The Master queue's message ID
 			sprintf(arg5,"%d", masterQueueId);
@@ -380,6 +389,7 @@ void processResourceRequests(void) {
 /* A resource is given to a process */
 void requestResource(int resourceType, int i) {
     int quant;
+	/*
     if((quant = resourceArray[resourceType].quantAvail) > 0) {
 		
 		totalGrantedRequests++;
@@ -396,14 +406,14 @@ void requestResource(int resourceType, int i) {
         }
        
 	   /* Process is given 1 share of its requested resource */
-        pcbGroup[i].allocation.quantity[resourceType]++;
+        //pcbGroup[i].allocation.quantity[resourceType]++;
 		
 		/* The amount of this resource available is 1 less after being allocated to the process */
-        resourceArray[resourceType].quantAvail--;
+        //resourceArray[resourceType].quantAvail--;
 		
         /* Process is no longer requesting the resource */
-        pcbGroup[i].request = -1;
-		
+        //pcbGroup[i].request = -1;
+		/*
         if(verboseOn) {
             printf("After processing the request , there are now %d out of %d available of resource R:%d\n", resourceArray[resourceType].quantAvail, resourceArray[resourceType].quantity, resourceType);
             if(fileLinesPrinted < LINE_LIMIT) {
@@ -412,6 +422,8 @@ void requestResource(int resourceType, int i) {
 			}
         }
     }
+	*/
+	
 }
 
 /* A resource is released from a process */
@@ -425,16 +437,9 @@ void releaseResource(int resourceType, int i) {
 	}
     
 	/* Transferring the resource from the PCB to the resource in the resource array */
-    pcbGroup[i].allocation.quantity[resourceType]--;
-    resourceArray[resourceType].quantAvail++;
+    //pcbGroup[i].allocation.quantity[resourceType]--;
+    //resourceArray[resourceType].quantAvail++;
 	
-    if(verboseOn) {
-        printf("There are now %d out of %d for resource R:%d\n", resourceArray[resourceType].quantAvail, resourceArray[resourceType].quantity, resourceType);
-        if(fileLinesPrinted < LINE_LIMIT) {
-			fprintf(file,"There are now %d out of %d available for resource R:%d\n", resourceArray[resourceType].quantAvail, resourceArray[resourceType].quantity, resourceType);
-			fileLinesPrinted++;
-		}
-	}
     
 	/* The Process is no longer wanting this resoruce to be released */
     pcbGroup[i].release = -1;
@@ -454,6 +459,7 @@ void performProcessCleanup(int i) {
     int j;
     for(j = 0; j < RSRC_ARR_SIZE; j++) {
         //If the quantity is > 0 for that resource, put them back
+		/*
         if(pcbGroup[i].allocation.quantity[j] > 0) {
             if(verboseOn) {
                 printf("Before the resources were returned there are %d out of %d for resource R:%d\n", resourceArray[j].quantAvail, resourceArray[j].quantity, j);
@@ -462,10 +468,12 @@ void performProcessCleanup(int i) {
 					fileLinesPrinted++;
 				}
 			}
+		*/
             /*Get the quantity to put back into the resource array */
-            int returnQuant = pcbGroup[i].allocation.quantity[j];
+            //int returnQuant = pcbGroup[i].allocation.quantity[j];
 			
             /*Increase the resource type quantAvail in the resource array */
+		/*
             resourceArray[j].quantAvail += returnQuant;
             if(verboseOn) {
 				printf("Returning %d of resource %d from process %d\n", returnQuant, j, i);
@@ -478,8 +486,9 @@ void performProcessCleanup(int i) {
 				}
 			}
             //Set the quantity of the pcbGroup to zero
-            pcbGroup[i].allocation.quantity[j] = 0;
+            //pcbGroup[i].allocation.quantity[j] = 0;
         }
+		*/
     }
     //Fields for the PCB are reset
 	pcbGroup[i].processID = 0;
@@ -506,7 +515,7 @@ void interruptHandler(int SIG) {
 }
 
 /* functions to detach and remove shared memory items */
-int detachAndRemoveResource(int shmid, resource *shmaddr) {
+int detachAndRemoveFrames(int shmid, frame *shmaddr) {
     int error = 0;
     if(shmdt(shmaddr) == -1) {
         error = errno;
@@ -575,8 +584,8 @@ void finalDeletions() {
         perror("Error: Failed to destroy shared pcb shared mem segment");
     }
 	
-    if(detachAndRemoveResource(resourceShmid, resourceArray) == -1) {
-        perror("Error: Faild to destroy resource shared mem segment");
+    if(detachAndRemoveFrames(frameShmid, frameArray) == -1) {
+        perror("Error: Faild to destroy frame shared mem segment");
     }
 
     //Deleting the master's message queue
