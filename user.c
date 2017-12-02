@@ -63,43 +63,33 @@ int main (int argc, char *argv[]) {
 	/* Child terminates at 10 seconds */
 	alarm(10);
 
-	int i, notFinished = 1;
+	int i, notFinished = 1, nextIndexToRequest = 0;;
 
 	do {
   
     /* If this child has not made a request or release than let it into the CS to maybe make one or the other */
 	if(pcbGroup[processNumber].request == -1 && pcbGroup[processNumber].release == -1) {
       //Check to see if process will terminate
-		if(processWillEnd()) {
+		if(processWillEnd(processNumber)) {
 			notFinished = 0;
       
-      //if not either request or release a resource
+      //if not get the next page request
 		} else {
-			if(rand() % 2) {
-				//Roll a number to either request or release a resource
-				int choseToRequestAResource = rand() % 2;
 				
-				if(choseToRequestAResource) {
+			if(nextIndexToRequest <= 31) {
 					
-					// Randomly choose a resource to request
-					pcbGroup[processNumber].request = rand() % RSRC_ARR_SIZE; 
-
-					// Sending an update to master					
-					sendMessage(masterQueueId, 3);
+				// Randomly choose a resource to request
+				pcbGroup[processNumber].request = nextIndexToRequest;
+				nextIndexToRequest++;
 				
-				// User will release the lowest index reasource that is allocated to it
-				} else{
-					for(i = 0; i < RSRC_ARR_SIZE; i++) {
-						//if(pcbGroup[processNumber].allocation.quantity[i] > 0) {
-							//pcbGroup[processNumber].release = i;
-							//break;
-						//}
-					}
-				}
-				
-				// Sending an update to master
+				// Sending an update to master					
 				sendMessage(masterQueueId, 3);
+				
 			}
+				
+			// Sending an update to master
+			sendMessage(masterQueueId, 3);
+		
 		}
 	}
     
@@ -130,7 +120,9 @@ int main (int argc, char *argv[]) {
 /* END MAIN */
 
 /* if between 0 and 250 ms since last check, the process has a 20% chance to terminate */
-int processWillEnd(void) {
+int processWillEnd(int pcbIndex) {
+	
+	/*
 	int terminateChance;
 	if((mainStruct->virtualClock - lastTimeChecked) >= (rand() % USER_TERMINATE_BOUND)) {
 		terminateChance = 1 + rand() % 5;
@@ -138,6 +130,21 @@ int processWillEnd(void) {
 		return terminateChance == 1 ? 1 : 0;
 	}	
 	lastTimeChecked = mainStruct->virtualClock;
+	return 0;
+	*/
+	
+	int memoryReferenceLimit = 1000;
+	
+	if(rand()%2) {
+		memoryReferenceLimit += rand() % 100;
+	} else {
+		memoryReferenceLimit -= rand() % 100;
+	}
+	
+	if(pcbGroup[pcbIndex].numMemoryReferences >= memoryReferenceLimit) {
+		return 1;
+	}
+	
 	return 0;
 }
 

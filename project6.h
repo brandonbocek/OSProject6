@@ -58,6 +58,7 @@ typedef struct PCB {
 	int deadlocked;
 	int setToDie;
 	int pageAddresses[32];
+	int numMemoryReferences;
 } PCB;
 
 typedef struct resource {
@@ -86,7 +87,7 @@ int detachAndRemoveArray(int, PCB*);
 int detachAndRemoveFrames(int, frame*);
 
 // User functions
-int processWillEnd();
+int processWillEnd(int);
 void sendMessage(int, int);
 void alarmHandler(int);
 void signalHandler(int);

@@ -102,19 +102,22 @@ int main (int argc, char *argv[]) {
     int x, y;
     for (x = 0; x < PCB_ARRAY_SIZE; x++) {
 		for(y = 0; y < 32; y++) {
-           // pcbGroup[x].allocation.quantity[y] = 0;
 		   pcbGroup[x].pageAddresses[y] = rand() % 256;
         }
+		
         pcbGroup[x].processID = 0;
         pcbGroup[x].deadlocked = 0;
         pcbGroup[x].request = -1;
         pcbGroup[x].release = -1;
 		pcbGroup[x].setToDie = 0;
+		pcbGroup[x].numMemoryReferences = 0;
     }
 	
 	//initialize the Main memory frames
 	for(x=0; x< 256; x++) {
 		frameArray[x].dirtyBit = 0;
+		frameArray[x].logicalBit = 0;
+		frameArray[x].referenceBit = 0;
 	}
 	
 	
@@ -168,8 +171,9 @@ int main (int argc, char *argv[]) {
 				}
 			}
         }
-        if(mainStruct->virtualClock - lastDeadlockCheck > NANOPERSECOND) {
-            lastDeadlockCheck = mainStruct->virtualClock;
+		
+        //if(mainStruct->virtualClock - lastDeadlockCheck > NANOPERSECOND) {
+          //  lastDeadlockCheck = mainStruct->virtualClock;
 			
 			/* If there is deadlock kill the process using the most resources until deadlock ends */
             /*
@@ -179,7 +183,7 @@ int main (int argc, char *argv[]) {
                 } while(deadlockIsFound());
             }
 			*/
-        }
+        //}
 
         mainStruct->virtualClock += 1 + rand() % CLOCK_INCREMENT_MAX;
 
@@ -328,8 +332,8 @@ void processMessage(int processNum) {
         requestResource(resourceType, processNum);
 		
 	/* The child wants to release a resource so release it */
-	} else if ((resourceType = pcbGroup[processNum].release) >= 0) {
-		releaseResource(resourceType, processNum);
+	//} else if ((resourceType = pcbGroup[processNum].release) >= 0) {
+		//releaseResource(resourceType, processNum);
 		
 	/* The process died so clear its fields for a new process to be spawned in its block */
     } else if(pcbGroup[processNum].processID == -1) {
@@ -368,6 +372,7 @@ void processResourceRequests(void) {
             requestResource(resourceType, i);
         }
         /* Finding any process that wants to be released */
+		/*
         else if((resourceType = pcbGroup[i].release) >= 0) {
 			if(verboseOn) {
 				printf("Master has detected Process P:%d requesting R:%d at time %llu.%03llu\n", i, resourceType, mainStruct->virtualClock / NANOPERSECOND, mainStruct->virtualClock % NANOPERSECOND);
@@ -387,6 +392,8 @@ void processResourceRequests(void) {
 
 
 /* A resource is given to a process */
+/* New role: the page request is simulated and second chance algo */
+/* Resource type is the index of page addresses of the pcb and i is the index of the pcb array */
 void requestResource(int resourceType, int i) {
     int quant;
 	/*
@@ -423,6 +430,12 @@ void requestResource(int resourceType, int i) {
         }
     }
 	*/
+	
+	int pageIndex;
+	int x;
+	for(x = 0; x < 256; x++) {
+		
+	}
 	
 }
 
