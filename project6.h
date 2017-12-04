@@ -120,6 +120,7 @@ int processNumberBeingSpawned = -1;
 int totalProcessesSpawned = 0;
 int totalGrantedRequests = 0;
 int numberOfDeadlockDetectionRuns = 0;
+int frameIndexToStartAt = 0;
 long long fileLinesPrinted = 0;
 long long lastDeadlockCheck = 0;
 long long timeToSpawn = 0;	//First child spawns at time 0

@@ -431,10 +431,18 @@ void requestResource(int resourceType, int i) {
     }
 	*/
 	
-	int pageIndex;
-	int x;
-	for(x = 0; x < 256; x++) {
-		
+	int resourceBeingRequested;
+	int frameArrayIndex = frameIndexToStartAt;
+	
+	// Second chance algorithm
+	while(1) {
+		if(frameArrIndex > 255) {
+			frameArrIndex = 0;
+		}
+		resourceBeingRequested = frameArraypcbGroup[i].pageAddresses[resourceType];
+		if(frameArray[resourceBeingRequested].referenceBit == 0) {
+			frameArray[resourceBeingRequested].referenceBit = 1;
+		}
 	}
 	
 }
