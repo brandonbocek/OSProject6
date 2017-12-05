@@ -431,17 +431,56 @@ void requestResource(int resourceType, int i) {
     }
 	*/
 	
-	int resourceBeingRequested;
+	int resourceBeingRequested, indexToGetKickedOut;
 	int frameArrayIndex = frameIndexToStartAt;
+	resourceBeingRequested = frameArraypcbGroup[i].pageAddresses[resourceType];
 	
-	// Second chance algorithm
-	while(1) {
-		if(frameArrIndex > 255) {
-			frameArrIndex = 0;
+	int i, numberOfFramesTaken = 0;
+	
+	// calculate the number of frames in memory
+	for(i=0; i<256; i++) {
+		if(frameArray[i].logicalBit == 1) {
+			numberOfFramesTaken++;
 		}
-		resourceBeingRequested = frameArraypcbGroup[i].pageAddresses[resourceType];
-		if(frameArray[resourceBeingRequested].referenceBit == 0) {
-			frameArray[resourceBeingRequested].referenceBit = 1;
+	}
+	
+	// The page exists in memory and there isn't a page fault
+	if(frameArray[resourceBeingRequested].logicalBit == 1) {
+		
+		frameArray[resourceBeingRequested].referenceBit = 1;
+		
+	// there is a page fault but less than 90% of the frames are taken so nothing should be swapped out 
+	} else if(numberOfFramesTaken < 230){
+		
+		frameArray[resourceBeingRequested].logicalBit = 1;
+		frameArray[resourceBeingRequested].referenceBit = 1;
+		
+	// there is a page fault and the second chance algorithm happens
+	}else {
+		while(frameArray[resourceBeingRequested].logicalBit != 1) {
+			
+			// if the frame is in the table
+			if(frameArray[frameArrIndex].logicalBit == 1) {
+					
+				// if there needs to be a page swap on this index
+				if(frameArray[frameArrIndex].referenceBit == 0) {
+						
+					frameArray[frameArrIndex].logicalBit = 0;
+					frameArray[resourceBeingRequested].logicalBit = 1;
+					frameArray[resourceBeingRequested].referenceBit = 1;
+						
+				// no page swap on this index and the frame is given a second chance
+				} else {
+					
+					frameArray[frameArrIndex].referenceBit = 0;
+						
+					// go to the next frame index
+					frameArrIndex++;
+					if(frameArrIndex > 255) {
+						frameArrIndex = 0;
+					}
+				}		
+			}
 		}
 	}
 	
