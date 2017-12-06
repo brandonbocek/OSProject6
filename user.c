@@ -122,17 +122,6 @@ int main (int argc, char *argv[]) {
 /* if between 0 and 250 ms since last check, the process has a 20% chance to terminate */
 int processWillEnd(int pcbIndex) {
 	
-	/*
-	int terminateChance;
-	if((mainStruct->virtualClock - lastTimeChecked) >= (rand() % USER_TERMINATE_BOUND)) {
-		terminateChance = 1 + rand() % 5;
-		lastTimeChecked = mainStruct->virtualClock;
-		return terminateChance == 1 ? 1 : 0;
-	}	
-	lastTimeChecked = mainStruct->virtualClock;
-	return 0;
-	*/
-	
 	int memoryReferenceLimit = 1000;
 	
 	if(rand()%2) {

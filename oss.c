@@ -124,25 +124,6 @@ int main (int argc, char *argv[]) {
 	/* The 20 resources are initialized */
 	
 	int indexToBeShared, qtyOfResourcesToBeShared;
-    /* Each resource in the array has between 1 and 10 resources available */
-	/*
-    for(x = 0; x < RSRC_ARR_SIZE; x++) {
-        resourceArray[x].quantity = 1 + rand() % 10;
-        resourceArray[x].quantAvail = resourceArray[x].quantity;
-    }
-	*/
-    /* Between 3 and 5 of the resources are shareable
-	so on average 4 of 20 resource or 20% are shareable	*/
-	
-	/*
-    qtyOfResourcesToBeShared = 3 + rand() % 3;
-
-    for(x = 0; x < qtyOfResourcesToBeShared; x++) {
-        indexToBeShared = rand() % RSRC_ARR_SIZE;
-        resourceArray[indexToBeShared].quantity = 100;
-        resourceArray[indexToBeShared].quantAvail = 100;
-    }
-	*/
 
     /*  File pointer opens log.out by default */
     file = fopen(filename, "w");
@@ -171,19 +152,6 @@ int main (int argc, char *argv[]) {
 				}
 			}
         }
-		
-        //if(mainStruct->virtualClock - lastDeadlockCheck > NANOPERSECOND) {
-          //  lastDeadlockCheck = mainStruct->virtualClock;
-			
-			/* If there is deadlock kill the process using the most resources until deadlock ends */
-            /*
-			if(deadlockIsFound()) {
-                do {
-                    killAfterDeadlock();
-                } while(deadlockIsFound());
-            }
-			*/
-        //}
 
         mainStruct->virtualClock += 1 + rand() % CLOCK_INCREMENT_MAX;
 
@@ -331,10 +299,6 @@ void processMessage(int processNum) {
     if((resourceType = pcbGroup[processNum].request) >= 0) {
         requestResource(resourceType, processNum);
 		
-	/* The child wants to release a resource so release it */
-	//} else if ((resourceType = pcbGroup[processNum].release) >= 0) {
-		//releaseResource(resourceType, processNum);
-		
 	/* The process died so clear its fields for a new process to be spawned in its block */
     } else if(pcbGroup[processNum].processID == -1) {
         performProcessCleanup(processNum);
@@ -362,26 +326,14 @@ void processResourceRequests(void) {
         //If the request flag is set with the value of a resource type, process the request
         if((resourceType = pcbGroup[i].request) >= 0) {
             if(verboseOn) {
-                printf("Master has detected Process P%d requesting R:%d at time %llu.%03llu\n", i, resourceType, mainStruct->virtualClock / NANOPERSECOND, mainStruct->virtualClock % NANOPERSECOND);
+                printf("Master has detected Process P%d requesting memory address %d at time %llu.%03llu\n", i, resourceType, mainStruct->virtualClock / NANOPERSECOND, mainStruct->virtualClock % NANOPERSECOND);
                 if(fileLinesPrinted < LINE_LIMIT) {
-					fprintf(file, "Master has detected Process P:%d requesting R:%d at time %llu.%03llu\n", i, resourceType, mainStruct->virtualClock / NANOPERSECOND, mainStruct->virtualClock % NANOPERSECOND);
+					fprintf(file, "Master has detected Process P:%d requesting memory address %d at time %llu.%03llu\n", i, resourceType, mainStruct->virtualClock / NANOPERSECOND, mainStruct->virtualClock % NANOPERSECOND);
 					fileLinesPrinted++;
 				}
 			}
             /* Assign a resource if available */
             requestResource(resourceType, i);
-        }
-        /* Finding any process that wants to be released */
-		/*
-        else if((resourceType = pcbGroup[i].release) >= 0) {
-			if(verboseOn) {
-				printf("Master has detected Process P:%d requesting R:%d at time %llu.%03llu\n", i, resourceType, mainStruct->virtualClock / NANOPERSECOND, mainStruct->virtualClock % NANOPERSECOND);
-				if(fileLinesPrinted < LINE_LIMIT) {
-					fprintf(file, "Master has detected Process P:%d requesting R:%d at time %llu.%03llu\n", i, resourceType, mainStruct->virtualClock / NANOPERSECOND, mainStruct->virtualClock % NANOPERSECOND);
-					fileLinesPrinted++;
-				}
-			}
-            releaseResource(resourceType, i);
         }
         /* The process is dead and resources will be returned to resource array */
         else if(pcbGroup[i].processID == -1) {
@@ -395,51 +347,16 @@ void processResourceRequests(void) {
 /* New role: the page request is simulated and second chance algo */
 /* Resource type is the index of page addresses of the pcb and i is the index of the pcb array */
 void requestResource(int resourceType, int i) {
-    int quant;
-	/*
-    if((quant = resourceArray[resourceType].quantAvail) > 0) {
-		
-		totalGrantedRequests++;
-		
-        if(verboseOn) {
-            printf("There are %d out of %d for resource R:%d available\n", quant, resourceArray[resourceType].quantity, resourceType);
-            printf("Increased resource R:%d for process P:%d\n", resourceType, i);
-            
-			if(fileLinesPrinted < LINE_LIMIT-1) {
-				fprintf(file,"Process number %d has requested Resource# %d at time llu.%llu\n",i, resourceType,mainStruct->virtualClock / NANOPERSECOND, mainStruct->virtualClock % NANOPERSECOND);
-				fprintf(file,"Increased resource %d for process %d\n", resourceType, i);
-				fileLinesPrinted = fileLinesPrinted + 2;
-			}
-        }
-       
-	   /* Process is given 1 share of its requested resource */
-        //pcbGroup[i].allocation.quantity[resourceType]++;
-		
-		/* The amount of this resource available is 1 less after being allocated to the process */
-        //resourceArray[resourceType].quantAvail--;
-		
-        /* Process is no longer requesting the resource */
-        //pcbGroup[i].request = -1;
-		/*
-        if(verboseOn) {
-            printf("After processing the request , there are now %d out of %d available of resource R:%d\n", resourceArray[resourceType].quantAvail, resourceArray[resourceType].quantity, resourceType);
-            if(fileLinesPrinted < LINE_LIMIT) {
-				fprintf(file,"After processing the request, there are now %d out of %d available of resource R:%d\n", resourceArray[resourceType].quantAvail, resourceArray[resourceType].quantity, resourceType);
-				fileLinesPrinted++;
-			}
-        }
-    }
-	*/
 	
 	int resourceBeingRequested, indexToGetKickedOut;
 	int frameArrayIndex = frameIndexToStartAt;
-	resourceBeingRequested = frameArraypcbGroup[i].pageAddresses[resourceType];
+	resourceBeingRequested = pcbGroup[i].pageAddresses[resourceType];
 	
-	int i, numberOfFramesTaken = 0;
+	int x, numberOfFramesTaken = 0;
 	
 	// calculate the number of frames in memory
-	for(i=0; i<256; i++) {
-		if(frameArray[i].logicalBit == 1) {
+	for(x=0; x<256; x++) {
+		if(frameArray[x].logicalBit == 1) {
 			numberOfFramesTaken++;
 		}
 	}
@@ -449,35 +366,47 @@ void requestResource(int resourceType, int i) {
 		
 		frameArray[resourceBeingRequested].referenceBit = 1;
 		
+		if(verboseOn) {
+            printf("After processing the request of process %d, the page address of %d was in memory and no page fault occured.\n", i, resourceBeingRequested);
+            if(fileLinesPrinted < LINE_LIMIT) {
+				fprintf(file, "After processing the request of process %d, the page address of %d was in memory and no page fault occured.\n", i, resourceBeingRequested);
+				fileLinesPrinted++;
+			}
+        }
+		
 	// there is a page fault but less than 90% of the frames are taken so nothing should be swapped out 
 	} else if(numberOfFramesTaken < 230){
 		
 		frameArray[resourceBeingRequested].logicalBit = 1;
 		frameArray[resourceBeingRequested].referenceBit = 1;
+		mainStruct->virtualClock += 10;
 		
 	// there is a page fault and the second chance algorithm happens
 	}else {
+		
+		mainStruct->virtualClock += 10;
+		
 		while(frameArray[resourceBeingRequested].logicalBit != 1) {
 			
 			// if the frame is in the table
-			if(frameArray[frameArrIndex].logicalBit == 1) {
+			if(frameArray[frameArrayIndex].logicalBit == 1) {
 					
 				// if there needs to be a page swap on this index
-				if(frameArray[frameArrIndex].referenceBit == 0) {
+				if(frameArray[frameArrayIndex].referenceBit == 0) {
 						
-					frameArray[frameArrIndex].logicalBit = 0;
+					frameArray[frameArrayIndex].logicalBit = 0;
 					frameArray[resourceBeingRequested].logicalBit = 1;
 					frameArray[resourceBeingRequested].referenceBit = 1;
 						
 				// no page swap on this index and the frame is given a second chance
 				} else {
 					
-					frameArray[frameArrIndex].referenceBit = 0;
+					frameArray[frameArrayIndex].referenceBit = 0;
 						
 					// go to the next frame index
-					frameArrIndex++;
-					if(frameArrIndex > 255) {
-						frameArrIndex = 0;
+					frameArrayIndex++;
+					if(frameArrayIndex > 255) {
+						frameArrayIndex = 0;
 					}
 				}		
 			}
@@ -491,16 +420,11 @@ void releaseResource(int resourceType, int i) {
     if(verboseOn) {
         printf("Releasing resouce %d from process %d\n", resourceType, i);
 		if(fileLinesPrinted < LINE_LIMIT) {
-			fprintf(file,"Releasing resouce %d from process %d at time %llu.%llu\n", resourceType, i ,mainStruct->virtualClock / NANOPERSECOND, mainStruct->virtualClock % NANOPERSECOND);
+			fprintf(file,"Releasing address %d from process %d at time %llu.%llu\n", resourceType, i ,mainStruct->virtualClock / NANOPERSECOND, mainStruct->virtualClock % NANOPERSECOND);
 			fileLinesPrinted++;
 		}
 	}
-    
-	/* Transferring the resource from the PCB to the resource in the resource array */
-    //pcbGroup[i].allocation.quantity[resourceType]--;
-    //resourceArray[resourceType].quantAvail++;
 	
-    
 	/* The Process is no longer wanting this resoruce to be released */
     pcbGroup[i].release = -1;
 }
@@ -516,40 +440,7 @@ void performProcessCleanup(int i) {
     }
     
 	// Allocations to the dead process are given back to the array of resources
-    int j;
-    for(j = 0; j < RSRC_ARR_SIZE; j++) {
-        //If the quantity is > 0 for that resource, put them back
-		/*
-        if(pcbGroup[i].allocation.quantity[j] > 0) {
-            if(verboseOn) {
-                printf("Before the resources were returned there are %d out of %d for resource R:%d\n", resourceArray[j].quantAvail, resourceArray[j].quantity, j);
-				if(fileLinesPrinted < LINE_LIMIT) {
-					fprintf(file, "Before the resoruces were returned there are %d out of %d for resource R:%d\n", resourceArray[j].quantAvail, resourceArray[j].quantity, j);
-					fileLinesPrinted++;
-				}
-			}
-		*/
-            /*Get the quantity to put back into the resource array */
-            //int returnQuant = pcbGroup[i].allocation.quantity[j];
-			
-            /*Increase the resource type quantAvail in the resource array */
-		/*
-            resourceArray[j].quantAvail += returnQuant;
-            if(verboseOn) {
-				printf("Returning %d of resource %d from process %d\n", returnQuant, j, i);
-                printf("There are now %d out of %d for resource %d\n", resourceArray[j].quantAvail, resourceArray[j].quantity, j);
-               
-				if(fileLinesPrinted < LINE_LIMIT - 1) {
-					fprintf(file,"Process %d returning %d of resource R:%d due to termination\n", i,returnQuant,j);
-					fprintf(file,"There are now %d out of %d for resource R:%d\n", resourceArray[j].quantAvail, resourceArray[j].quantity, j);
-					fileLinesPrinted = fileLinesPrinted + 2;
-				}
-			}
-            //Set the quantity of the pcbGroup to zero
-            //pcbGroup[i].allocation.quantity[j] = 0;
-        }
-		*/
-    }
+    
     //Fields for the PCB are reset
 	pcbGroup[i].processID = 0;
 	pcbGroup[i].request = -1;
@@ -625,9 +516,9 @@ int detachAndRemoveTimer(int shmid, clockStruct *shmaddr) {
 void finalDeletions() {
 	
 	//Even when verbose is off print the ending message
-	printf("Program ending now: the system ran %d deadlock checks for this run\n", numberOfDeadlockDetectionRuns);
+	printf("Program ending now.\n");
 	if(fileLinesPrinted < LINE_LIMIT) {
-		fprintf(file, "Program ending now: the system ran %d deadlock checks for this run\n", numberOfDeadlockDetectionRuns);
+		fprintf(file, "Program ending now.\n");
 		fileLinesPrinted++;
 	}
 	signal(SIGQUIT, SIG_IGN);

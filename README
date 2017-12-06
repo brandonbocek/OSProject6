@@ -1,0 +1,16 @@
+Brandon Bocek
+12/5/2017
+CS 4760
+Project 6
+
+To compile: type 'make' or 'make all'
+
+To run: type   './oss'
+			or './oss -h' for the help menu to display
+			or './oss -v to turn on verbose and see more info printed'
+			or './oss -l file to write to'
+			or './oss -t to set the time for master to terminate'
+			
+deleting executables: type 'make clean'
+
+In order to see anything and for it to run quickly verbose needs to be on.
